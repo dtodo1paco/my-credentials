@@ -1,7 +1,57 @@
-html
-    head
-        title=title
-    body
-        h1=title
-        p=message
-        p Ask <a href="https://dtodo1paco.github.io/cv/fjap.html">@dtodo1paco</a>
+extends layout
+block body
+  if message
+    if message.error
+      div.alert.alert-danger #{message.error}
+    else
+      if message.success
+        div.alert.alert-success #{message.success}
+  div(class="container")
+    if user.token
+      div(class="row")
+        div#login.container(class="col-xs-12")
+          div.alert.alert-info
+            p Your are logged in as:
+              b(style={'margin-right': '2em'}) #{user.nickname}
+              a(href="/logout", class="btn btn-info btn-sm")
+                span(class="glyphicon glyphicon-log-out") Logout
+            p Your 10 min token is:
+              b(style={'word-wrap': 'break-word'}) #{user.token}
+    else
+        div(class="row")
+          div#login.container(class="col-xs-6")
+            div: form(method='post', class='form-vertical', action='/login')
+              fieldset
+                legend: strong.text-info Login
+
+                div.form-group
+                  label Username:
+                  input.form-control(name='username',  autofocus)
+
+                div.form-group
+                  label Password:
+                  input.form-control(name='password', type='password')
+
+                div.form-actions
+                  input.btn.btn-primary(type='submit', value='Login')
+          div#signup.container(class="col-xs-6")
+            div: form(method='post', class='form-vertical', action='/signup')
+              fieldset
+                legend: strong.text-info Sign up
+
+                div.form-group
+                  label Username:
+                  input.form-control(name='username',  autofocus)
+                div.form-group
+                  label Nickname:
+                  input.form-control(name='nickname', autofocus)
+
+                div.form-group
+                  label Password:
+                  input.form-control(name='password', type='password')
+                div.form-group
+                  label Repeat password:
+                  input.form-control(name='password2', type='password')
+
+                div.form-actions
+                  input.btn.btn-primary(type='submit', value='Register')
