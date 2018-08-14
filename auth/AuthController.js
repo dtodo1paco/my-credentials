@@ -2,77 +2,38 @@ var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
 
-var bcrypt = require('bcryptjs');
 var Token = require('./Token');
 
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 var User = require('../user/User');
 var crypto = require('../crypt-util');
+
+var AccountManager = require('../user/AccountManager');
+
 /**
  * Configure JWT
  */
 
 router.post('/login', function(req, res) {
-  User.findOne({ username: req.body.username }, function (err, user) {
-    if (err) return res.status(500).send('Internal error');
-    if (!user) return res.status(401).send({ auth: false, token: null });
-    
-    // check if the password is valid
-    var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
-    if (!passwordIsValid) return res.status(401).send({ auth: false, token: null });
-
-    // if user is found and password is valid
-    // create a token
-    var token = Token.buildToken(user._id);
-    user.lastLogin = new Date();
-    User.findByIdAndUpdate(user._id, user, function (err, user) {
-        if (err) return res.status(500).send('Internal error');
-        if (!user) return res.status(401).send('User not found.');
-        // return the information including token as JSON
-        res.status(200).send({ auth: true, token: token, nickname: user.nickname });
+    AccountManager.doLogin(req.body.username, req.body.password, function (code, result) {
+        res.status(code).send(result);
     })
-  });
 });
 
 router.get('/logout', function(req, res) {
-  res.status(200).send({ auth: false, token: null });
+  res.status(200).send(AccountManager.RESPONSE_LOGOUT);
 });
 
 router.post('/register', function(req, res) {
     console.log("Trying register of user: [" + req.body.username +"|"+req.body.nickname+"|"+req.body.password+"]");
-    User.count({username: req.body.username}, function (err, total) {
-        if (total > 0) {
-            res.redirect(301, req.headers.host + '/me/');
+    AccountManager.doSignup(req.body.username, req.body.password, req.body.nickname, function (code, result) {
+        if (code === 301) {
+            res.redirect(code, req.headers.host + '/me/');
         } else {
-            User.countDocuments({
-                "created" : {
-                    $lte: new Date(),
-                    $gt: new Date(new Date().setDate(new Date().getDate()-1))
-                }
-            }, function (err, total) {
-                console.log("total users created today:" + total);
-                if (total > 5) {
-                    res.status(402).send("You must pay for this service. Please, send an email to @dtodo1paco to know how");
-                } else {
-                    var hashedPassword = bcrypt.hashSync(req.body.password, 8);
-                    User.create({
-                        nickname: req.body.nickname,
-                        username: req.body.username,
-                        password: hashedPassword,
-                        created: new Date(),
-                        lastLogin: new Date(),
-                        key: null
-                    },
-                    function (err, user) {
-                        if (err) return res.status(500).send("There was a problem registering the user`.");
-                        var token = Token.buildToken(user._id);
-                        res.status(200).send({auth: true, token: token, nickname: user.nickname, username: user.username});
-                    });
-                }
-            });
+            res.status(code).send(result);
         }
-    });
+    })
 });
 
 router.get('/me', Token.verifyToken, function(req, res, next) {
