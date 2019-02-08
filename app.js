@@ -15,14 +15,21 @@ var corsOptions = {
     }
   }
 }
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set('view engine', 'pug');
+
+// UI
 app.use('/', require(__dirname + '/views/index'));
 
+
 // REST API
-var UserController = require(__dirname + '/user/UserController');
-app.use('/users', UserController);
+/*
+ var UserController = require(__dirname + '/user/UserController');
+ app.use('/users', UserController);
+*/
+
 
 var AuthController = require(__dirname + '/auth/AuthController');
 app.use('/api/auth', cors(corsOptions), AuthController);
