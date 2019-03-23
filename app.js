@@ -7,7 +7,7 @@ var whitelist = ['http://localhost:8080', 'https://dtodo1paco.github.io']
 var cors = require('cors');
 var corsOptions = {
   origin: function (origin, callback) {
-    console.log("origin: "+ origin);
+    console.log("access granted to origin: "+ origin);
     callback(null, true)
   }
 }

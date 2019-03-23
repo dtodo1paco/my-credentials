@@ -45,6 +45,7 @@ function doLogin(username, password, callback) {
 }
 function doSignup(username, password, nickname, callback) {
   if (!validateSignup(username, password, nickname)) { callback(400, "Invalid data supplied"); return;};
+  console.log("Sign up for " + username );
   User.countDocuments({username: username}, function (err, total) {
       if (total > 0) {
           callback(301, null);
@@ -56,7 +57,7 @@ function doSignup(username, password, nickname, callback) {
               }
           }, function (err, total) {
               console.log("total users created today:" + total);
-              if (total > 5) {
+              if (total > 50) {
                   callback(402, "You must pay for this service. Please, send an email to @dtodo1paco to know how");
               } else {
                   var hashedPassword = bcrypt.hashSync(password, 8);
