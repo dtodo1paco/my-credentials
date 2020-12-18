@@ -15,7 +15,14 @@ let mongoConfig =  {
 }
 
 if (mongoConfig.user != null && mongoConfig.user != '') {
-	mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASS}@${DB_HOST}/${DB_NAME}?retryWrites=true&w=majority`);
+	mongoose.connection.on('connected', function() {
+	    // Hack the database back to the right one, because when using mongodb+srv as protocol.
+	    if (mongoose.connection.client.s.url.startsWith('mongodb+srv')) {
+		mongoose.connection.db = mongoose.connection.client.db(db);
+	    }
+	    console.log('Connection to Mongo established.')
+	});
+	mongoose.connect(`mongodb+srv://${user}:${pass}@${host}/${db}?retryWrites=true&w=majority`);
 } else {
 	console.log("connecting to local database");
 	mongoose.connect('mongodb://'+mongoConfig.host+':'+mongoConfig.port+'/'+mongoConfig.db, { useNewUrlParser: true });
