@@ -15,7 +15,7 @@ let mongoConfig =  {
 }
 
 if (mongoConfig.user != null && mongoConfig.user != '') {
-	mongoose.connect('mongodb://'+mongoConfig.user+":"+mongoConfig.pass+"@"+mongoConfig.host+':'+mongoConfig.port+'/'+mongoConfig.db, { useNewUrlParser: true });
+	mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASS}@${DB_HOST}/${DB_NAME}?retryWrites=true&w=majority`);
 } else {
 	console.log("connecting to local database");
 	mongoose.connect('mongodb://'+mongoConfig.host+':'+mongoConfig.port+'/'+mongoConfig.db, { useNewUrlParser: true });
