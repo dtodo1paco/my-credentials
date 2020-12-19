@@ -7,5 +7,5 @@ This simple demo application shows how to implement a nodejs server using JWT as
 ## Demo
 
 Try it at [Heroku](https://my-credentials.herokuapp.com/)
-
+ 
 
