@@ -46,6 +46,9 @@ function doLogin(username, password, callback) {
 function doSignup(username, password, nickname, callback) {
   if (!validateSignup(username, password, nickname)) { callback(400, "Invalid data supplied"); return;};
   User.countDocuments({username: username}, function (err, total) {
+      if (err) {
+        console.error("ERROR", err); callback(500, "Oooops :'( , something failed behind the scenes. We are working on it");
+      }
       if (total > 0) {
           callback(301, null);
       } else {
